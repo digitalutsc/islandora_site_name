@@ -63,13 +63,17 @@ class IslandoraSiteName extends ProcessorPluginBase {
    *  Page title.
    */
   protected function getPageTitle(String $url) {
-    $request = \Drupal::httpClient()->get($url);
-    $dom = Html::load($request->getBody());
-    if ($dom) {
-      $list = $dom->getElementsByTagName('title');
-      if ($list->length > 0) {
-        return $list->item(0)->textContent;
+    try {
+      $request = \Drupal::httpClient()->get($url);
+      $dom = Html::load($request->getBody());
+      if ($dom) {
+        $list = $dom->getElementsByTagName('title');
+        if ($list->length > 0) {
+          return $list->item(0)->textContent;
+        }
       }
+    } catch (\Exception $e) {
+      return NULL;
     }
     return NULL;
   }
