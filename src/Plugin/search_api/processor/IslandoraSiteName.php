@@ -103,11 +103,12 @@ class IslandoraSiteName extends ProcessorPluginBase {
   public function addFieldValues(ItemInterface $item) {
     $datasourceId = $item->getDatasourceId();
     if ($datasourceId == 'entity:node') {
-      $node = $item->getOriginalObject()->getValue();
-      $url = $node->toUrl()->setAbsolute()->toString();
+      //$node = $item->getOriginalObject()->getValue();
+      //$url = $node->toUrl()->setAbsolute()->toString();
 
-      $title = $this->getPageTitle($url);
-      $siteTitle = $this->extractSiteTitle($title);
+      //$title = $this->getPageTitle($url);
+      //$siteTitle = $this->extractSiteTitle($title);
+      $siteTitle = \Drupal::config('system.site')->get('name');
 
       $fields = $this->getFieldsHelper()->filterForPropertyPath($item->getFields(), NULL,
       'search_api_islandora_site_name');
