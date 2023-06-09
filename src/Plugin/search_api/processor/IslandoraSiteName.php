@@ -7,7 +7,6 @@ use Drupal\search_api\Item\ItemInterface;
 use Drupal\search_api\Processor\ProcessorPluginBase;
 use Drupal\search_api\Processor\ProcessorProperty;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\image\Entity\ImageStyle;
 use Drupal\Component\Utility\Html;
 
 /**
@@ -26,11 +25,27 @@ use Drupal\Component\Utility\Html;
 class IslandoraSiteName extends ProcessorPluginBase {
 
   /**
+   * The HTTP client to fetch the feed data with.
+   *
+   * @var \GuzzleHttp\ClientInterface
+   */
+  protected $httpClient;
+
+  /**
+   * Theme settings config.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     /** @var static $processor */
     $processor = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    $processor->httpClient = $container->get('http_client');
+    $processor->configFactory = $container->get('config.factory');
     return $processor;
   }
 
@@ -57,22 +72,21 @@ class IslandoraSiteName extends ProcessorPluginBase {
    * Gets the page title from a URL.
    *
    * @param string $url
-   *  The URL to get the title from.
+   *   The URL to get the title from.
    *
-   * @return string
-   *  Page title.
+   * @return string|null
+   *   Page title.
    */
   protected function getPageTitle(String $url) {
     try {
-      $request = \Drupal::httpClient()->get($url);
+      $request = $this->httpClient->request('GET', $url);
       $dom = Html::load($request->getBody());
-      if ($dom) {
-        $list = $dom->getElementsByTagName('title');
-        if ($list->length > 0) {
-          return $list->item(0)->textContent;
-        }
+      $list = $dom->getElementsByTagName('title');
+      if ($list->length > 0) {
+        return $list->item(0)->textContent;
       }
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       return NULL;
     }
     return NULL;
@@ -82,10 +96,10 @@ class IslandoraSiteName extends ProcessorPluginBase {
    * Gets the site title from a page title.
    *
    * @param string $title
-   *  The page title to get the site title from.
+   *   The page title to get the site title from.
    *
-   * @return string
-   *  Site title.
+   * @return string|null
+   *   Site title.
    */
   protected function extractSiteTitle(?String $title) {
     if (!is_null($title)) {
@@ -103,12 +117,11 @@ class IslandoraSiteName extends ProcessorPluginBase {
   public function addFieldValues(ItemInterface $item) {
     $datasourceId = $item->getDatasourceId();
     if ($datasourceId == 'entity:node') {
-      //$node = $item->getOriginalObject()->getValue();
-      //$url = $node->toUrl()->setAbsolute()->toString();
-
-      //$title = $this->getPageTitle($url);
-      //$siteTitle = $this->extractSiteTitle($title);
-      $siteTitle = \Drupal::config('system.site')->get('name');
+      // $node = $item->getOriginalObject()->getValue();
+      // $url = $node->toUrl()->setAbsolute()->toString();
+      // $title = $this->getPageTitle($url);
+      // $siteTitle = $this->extractSiteTitle($title);
+      $siteTitle = $this->configFactory->get('system.site')->get('name');
 
       $fields = $this->getFieldsHelper()->filterForPropertyPath($item->getFields(), NULL,
       'search_api_islandora_site_name');
