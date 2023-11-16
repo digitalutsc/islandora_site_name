@@ -1,0 +1,6 @@
+{
+  "name": "islandora_lite/islandora_site_name",
+  "type": "drupal-module",
+  "description": "Search API processor for indexing Islandora site names with Solr.",
+  "keywords": ["Drupal"]
+}
