@@ -22,67 +22,86 @@ use Drupal\Component\Utility\Html;
  *   hidden = false,
  * )
  */
-class IslandoraSiteName extends ProcessorPluginBase {
+class IslandoraSiteName extends ProcessorPluginBase
+{
+    /**
+     * The HTTP client to fetch the feed data with.
+     *
+     * @var \GuzzleHttp\ClientInterface
+     */
+    protected $httpClient;
 
-  /**
-   * The HTTP client to fetch the feed data with.
-   *
-   * @var \GuzzleHttp\ClientInterface
-   */
-  protected $httpClient;
+    /**
+     * Theme settings config.
+     *
+     * @var \Drupal\Core\Config\ConfigFactoryInterface
+     */
+    protected $configFactory;
 
-  /**
-   * Theme settings config.
-   *
-   * @var \Drupal\Core\Config\ConfigFactoryInterface
-   */
-  protected $configFactory;
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    /** @var static $processor */
-    $processor = parent::create($container, $configuration, $plugin_id, $plugin_definition);
-    $processor->httpClient = $container->get('http_client');
-    $processor->configFactory = $container->get('config.factory');
-    return $processor;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getPropertyDefinitions(DatasourceInterface $datasource = NULL) {
-    $properties = [];
-
-    if (!$datasource) {
-      $definition = [
-        'label' => $this->t('Islandora Site Name'),
-        'description' => $this->t('Name of Islandora Site to be indexed to Solr'),
-        'type' => 'string',
-        'processor_id' => $this->getPluginId(),
-      ];
-      $properties['search_api_islandora_site_name'] = new ProcessorProperty($definition);
+    /**
+     * {@inheritdoc}
+     */
+    public static function create(
+        ContainerInterface $container,
+        array $configuration,
+        $plugin_id,
+        $plugin_definition
+    ) {
+        /** @var static $processor */
+        $processor = parent::create(
+            $container,
+            $configuration,
+            $plugin_id,
+            $plugin_definition
+        );
+        $processor->httpClient = $container->get("http_client");
+        $processor->configFactory = $container->get("config.factory");
+        return $processor;
     }
 
-    return $properties;
-  }
+    /**
+     * {@inheritdoc}
+     */
+    public function getPropertyDefinitions(
+        DatasourceInterface $datasource = null
+    ) {
+        $properties = [];
 
-  /**
-   * {@inheritdoc}
-   */
-  public function addFieldValues(ItemInterface $item) {
-    $datasourceId = $item->getDatasourceId();
-    if ($datasourceId == 'entity:node') {
-      $siteTitle = $this->configFactory->get('system.site')->get('name');
-      $fields = $this->getFieldsHelper()->filterForPropertyPath($item->getFields(), NULL,
-      'search_api_islandora_site_name');
-      foreach ($fields as $field) {
-        if ($siteTitle) {
-          $field->addValue($siteTitle);
+        if (!$datasource) {
+            $definition = [
+                "label" => $this->t("Islandora Site Name"),
+                "description" => $this->t(
+                    "Name of Islandora Site to be indexed to Solr"
+                ),
+                "type" => "string",
+                "processor_id" => $this->getPluginId(),
+            ];
+            $properties[
+                "search_api_islandora_site_name"
+            ] = new ProcessorProperty($definition);
         }
-      }
-    }
-  }
 
+        return $properties;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addFieldValues(ItemInterface $item)
+    {
+        $datasourceId = $item->getDatasourceId();
+        if ($datasourceId == "entity:node") {
+            $siteTitle = $this->configFactory->get("system.site")->get("name");
+            $fields = $this->getFieldsHelper()->filterForPropertyPath(
+                $item->getFields(),
+                null,
+                "search_api_islandora_site_name"
+            );
+            foreach ($fields as $field) {
+                if ($siteTitle) {
+                    $field->addValue($siteTitle);
+                }
+            }
+        }
+    }
 }
