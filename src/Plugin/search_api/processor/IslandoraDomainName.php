@@ -74,7 +74,6 @@ class IslandoraDomainName extends ProcessorPluginBase
                 ),
                 "type" => "string",
                 "processor_id" => $this->getPluginId(),
-                //         'processor_id' => 'joijoin3i_3djn',
             ];
             $properties[
                 "search_api_islandora_domain_name"
