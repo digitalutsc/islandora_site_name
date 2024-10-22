@@ -13,16 +13,16 @@ use Drupal\Component\Utility\Html;
  * Adds the item's view count to the indexed data.
  *
  * @SearchApiProcessor(
- *   id = "islandora_site_name",
- *   label = @Translation("Islandora Site Name"),
- *   description = @Translation("Add index for title of an Islandora site"),
+ *   id = "islandora_domain_name",
+ *   label = @Translation("Islandora Domain Name"),
+ *   description = @Translation("Add index for title of an Islandora Domain"),
  *   stages = {
  *     "add_properties" = 0,
  *   },
  *   hidden = false,
  * )
  */
-class IslandoraSiteName extends ProcessorPluginBase
+class IslandoraDomainName extends ProcessorPluginBase
 {
     /**
      * The HTTP client to fetch the feed data with.
@@ -66,18 +66,17 @@ class IslandoraSiteName extends ProcessorPluginBase
         DatasourceInterface $datasource = null
     ) {
         $properties = [];
-
         if (!$datasource) {
             $definition = [
-                "label" => $this->t("Islandora Site Name"),
+                "label" => $this->t("Islandora Domain Name"),
                 "description" => $this->t(
-                    "Name of Islandora Site to be indexed to Solr"
+                    "Name of Islandora Domain to be indexed to Solr"
                 ),
                 "type" => "string",
                 "processor_id" => $this->getPluginId(),
             ];
             $properties[
-                "search_api_islandora_site_name"
+                "search_api_islandora_domain_name"
             ] = new ProcessorProperty($definition);
         }
 
@@ -91,15 +90,15 @@ class IslandoraSiteName extends ProcessorPluginBase
     {
         $datasourceId = $item->getDatasourceId();
         if ($datasourceId == "entity:node") {
-            $siteTitle = $this->configFactory->get("system.site")->get("name");
+            $domain = \Drupal::request()->getSchemeAndHttpHost();
             $fields = $this->getFieldsHelper()->filterForPropertyPath(
                 $item->getFields(),
                 null,
-                "search_api_islandora_site_name"
+                "search_api_islandora_domain_name"
             );
             foreach ($fields as $field) {
-                if ($siteTitle) {
-                    $field->addValue($siteTitle);
+                if ($domain) {
+                    $field->addValue($domain);
                 }
             }
         }
