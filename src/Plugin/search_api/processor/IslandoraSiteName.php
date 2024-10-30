@@ -90,7 +90,7 @@ class IslandoraSiteName extends ProcessorPluginBase
     public function addFieldValues(ItemInterface $item)
     {
         $datasourceId = $item->getDatasourceId();
-        if ($datasourceId == "entity:node") {
+        if (in_array($datasourceId,["entity:node", "entity:taxonomy_term"] )) {
             $siteTitle = $this->configFactory->get("system.site")->get("name");
             $fields = $this->getFieldsHelper()->filterForPropertyPath(
                 $item->getFields(),
