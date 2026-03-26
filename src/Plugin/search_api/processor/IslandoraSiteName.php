@@ -70,7 +70,7 @@ class IslandoraSiteName extends ProcessorPluginBase {
         "label" => $this->t("Islandora Site Name"),
         "description" => $this->t(
                 "Name of Islandora Site to be indexed to Solr"
-            ),
+        ),
         "type" => "string",
         "processor_id" => $this->getPluginId(),
       ];
